@@ -1,0 +1,17 @@
+{:deps {org.clojure/data.json {:mvn/version "0.2.6"}
+        org.clojure/clojure   {:mvn/version "1.9.0"}
+        org.clojure/tools.cli {:mvn/version "0.4.1"}}
+ :paths ["src"]
+ :aliases {:native-image
+           {:main-opts ["-m" "clj.native-image" "core"
+                        "--initialize-at-build-time"
+                        "--report-unsupported-elements-at-runtime"
+                        "--enable-url-protocols=http,https"
+                        ;; optional native image name override
+                        ;; "-H:Name=core"
+                        ]
+            :jvm-opts ["-Dclojure.compiler.direct-linking=true"]
+            :extra-deps
+            {clj.native-image/clj.native-image
+             {:git/url "https://github.com/taylorwood/clj.native-image.git"
+              :sha "b3823a48be75122b9671c86ce5353a85589ef15f"}}}}}
