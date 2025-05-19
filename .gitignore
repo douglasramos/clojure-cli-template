@@ -13,6 +13,7 @@ pom.xml.asc
 .lein-failures
 .nrepl-port
 .clj-kondo/.cache/
+.calva/
 .cpcache/
 .lsp/
 .DS_Store
