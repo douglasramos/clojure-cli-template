@@ -5,47 +5,96 @@
 
 1. [Install GraalVM](https://www.graalvm.org/docs/getting-started/)
 
-2. Execute the following command to change your java environment to use the graalvm virtual machine:
-
-```
-# GRAALVM
-export JAVA_HOME=/Library/Java/JavaVirtualMachines/<graalvm>/Contents/Home
-export GRAALVM_HOME=/Users/<user>/Library/Java/JavaVirtualMachines/<graalvm/Contents/Home
-export PATH=$GRAALVM_HOME/bin:$PATH
-```
-
-Alternatively you can use use [jenv](https://www.jenv.be/) to manage your java environment without having to deal with `JAVA_HOME environment variable`
-
-3. Install Native Image (if it isn't already on $GRAALVM_HOME/bin)
-
-First, put GraalVM bin folder into the path:
-
-```
- export PATH=/Library/Java/JavaVirtualMachines/<graalvm>/Contents/Home/bin:$PATH
-```
-Now you have acess to `gu` command in you terimanl. Run:
-```
-gu install native-image
-```
-After this additional step, the native-image executable will become available in the `$JAVA_HOME/bin directory` which we already put in the path in the previouse in a former command.
-
-To test fi everything is working:
+2. Test that everything is working:
 ```
 native-image --version
 ```
 
+## Project Aliases
 
-# Issues
+The project includes several useful aliases that can be run using the Clojure CLI. Here's how to use each one:
 
-https://github.com/taylorwood/clojurl/commit/12b96b5e9a722b372f153436b1f6827709d0f2ab
-https://www.innoq.com/en/blog/native-clojure-and-graalvm/
+### Test Runner
 
-Yes, eval will generate classes in a dynamic classloader, load them, then
->> call methods on the newly formed class/object except for
+Run all tests in the project:
+```shell
+clojure -M:test
+```
 
-https://github.com/babashka/sci
+### Build Tool
 
-# Good Examples of CLIS
+Build the project using tools.build:
+```shell
+clojure -T:build jar
+```
 
-* https://github.com/taylorwood/clojurl
-* https://gist.github.com/taylorwood/23d370f70b8b09dbf6d31cd4f27d31ff
+### Native Image Generation
+
+Create a native binary using GraalVM native-image:
+```shell
+clojure -M:native-image
+```
+
+This will create a native executable that can run without the JVM.
+
+## Understanding Clojure CLI Modes
+
+The Clojure CLI provides different execution modes, each suited for specific use cases. Here's how they work:
+
+### Main Mode (-M)
+- Used for running programs with a `-main` function
+- Relevant alias options:
+  - `:main-opts`: Arguments passed to the program (e.g., `["-m" "my.namespace"]`)
+  - `:extra-deps`: Additional dependencies
+  - `:extra-paths`: Additional classpath entries
+
+Example:
+```shell
+clojure -M:test    # Runs test runner via its -main function
+```
+
+### Tool Mode (-T)
+- Used for running functions as tools with named arguments
+- Running a tool with -T will create a classpath that does not include the project :paths and :deps. -T:build will use only the :paths and :deps from the :build alias. The root deps.edn is still included
+- Relevant alias options:
+  - `:ns-default`: Default namespace for the tool
+  - `:exec-fn`: Function to execute (if different from default)
+  - `:exec-args`: Default arguments to pass
+
+Example:
+```shell
+clojure -T:build jar    # 'jar' is passed as argument to the build function
+```
+
+### Execute Mode (-X)
+- Modern way to run functions with map arguments
+- Relevant alias options:
+  - `:exec-fn`: Function to execute (required)
+  - `:exec-args`: Default arguments as a map
+  - `:extra-deps`: Additional dependencies
+
+Example:
+```shell
+clojure -X:my-task {:arg1 "value"}    # Passes map as arguments
+```
+
+### Classic Mode (-A)
+- Deprecated but still supported
+- Only adds dependencies/paths without executing
+- Relevant alias options:
+  - `:extra-deps`: Additional dependencies
+  - `:extra-paths`: Additional classpath entries
+
+Example:
+```shell
+clojure -A:deps    # Just adds dependencies to classpath
+```
+
+Choose the appropriate mode based on how your tool/library expects to be invoked:
+- Use `-M` for traditional main function entry points
+- Use `-T` for modern tools that take named arguments
+- Use `-X` for functions designed to take map arguments
+- Avoid `-A` in favor of more explicit modes
+
+More information [here](https://clojure.org/guides/deps_and_cli)
+
